@@ -13,6 +13,7 @@ import {
   Star,
   Clock,
   ArrowRightLeft,
+  Coins,
 } from "lucide-react";
 import {
   Card,
