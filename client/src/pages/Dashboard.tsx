@@ -123,6 +123,7 @@ export default function Dashboard() {
     snrBalance,
     connectWallet,
     disconnectWallet,
+    claimSnrTokens,
   } = useWallet();
   const [, setLocation] = useLocation();
   const [selectedRoom, setSelectedRoom] = useState<GameRoom | null>(null);
@@ -267,10 +268,19 @@ export default function Dashboard() {
                 ≈ ${snrBalance ? parseFloat(snrBalance) * 0.05 : 0} USD
               </p>
             </CardContent>
-            <CardFooter>
-              <Button variant="outline" size="sm" className="w-full">
+            <CardFooter className="flex gap-2">
+              <Button variant="outline" size="sm" className="flex-1">
                 <ArrowRightLeft className="mr-2 h-4 w-4" />
                 ซื้อเพิ่มเติม
+              </Button>
+              <Button 
+                variant="secondary" 
+                size="sm" 
+                className="flex-1"
+                onClick={claimSnrTokens}
+              >
+                <Coins className="mr-2 h-4 w-4" />
+                รับฟรี 1,000 SNR
               </Button>
             </CardFooter>
           </Card>
