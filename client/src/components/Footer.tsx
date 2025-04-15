@@ -8,12 +8,12 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
           <div>
             <Link href="/">
-              <a className="flex items-center gap-2 mb-6">
+              <div className="flex items-center gap-2 mb-6 cursor-pointer">
                 <div className="w-10 h-10 relative rounded-full bg-gradient-to-r from-primary to-purple-600 flex items-center justify-center">
                   <div className="w-4 h-4 rounded-full bg-background"></div>
                 </div>
                 <span className="font-mono text-white text-xl font-bold">SNR</span>
-              </a>
+              </div>
             </Link>
 
             <p className="text-muted-foreground mb-6">

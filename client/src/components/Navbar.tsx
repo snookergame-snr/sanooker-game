@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 
 const navLinks = [
   { name: "About", href: "#about" },
+  { name: "How to Play", href: "#howtoplay" },
   { name: "Tokenomics", href: "#tokenomics" },
   { name: "Roadmap", href: "#roadmap" },
   { name: "Team", href: "#team" },
@@ -47,12 +48,12 @@ export default function Navbar() {
     >
       <div className="container mx-auto px-4 flex items-center justify-between">
         <Link href="/">
-          <a className="flex items-center gap-2">
+          <div className="flex items-center gap-2 cursor-pointer">
             <div className="w-10 h-10 relative rounded-full bg-gradient-to-r from-primary to-purple-600 flex items-center justify-center">
               <div className="w-4 h-4 rounded-full bg-background"></div>
             </div>
             <span className="font-mono text-white text-xl font-bold">SNR</span>
-          </a>
+          </div>
         </Link>
 
         {/* Desktop Menu */}
