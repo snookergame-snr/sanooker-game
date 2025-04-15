@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import AboutSection from "@/components/AboutSection";
+import HowToPlaySection from "@/components/HowToPlaySection";
 import TokenomicsSection from "@/components/TokenomicsSection";
 import RoadmapSection from "@/components/RoadmapSection";
 import TeamSection from "@/components/TeamSection";
@@ -50,6 +51,7 @@ export default function Home() {
       <main>
         <HeroSection />
         <AboutSection />
+        <HowToPlaySection />
         <TokenomicsSection />
         <RoadmapSection />
         <TeamSection />

@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, Wallet, Coins } from "lucide-react";
+import { Menu, Wallet, Coins, Gamepad2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useWallet } from "@/hooks/useWallet";
+import { shortenAddress } from "@/lib/utils";
 
 const navLinks = [
   { name: "About", href: "#about" },
@@ -17,6 +19,8 @@ const navLinks = [
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
+  const { isConnected, account, snrBalance, connectWallet } = useWallet();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -26,18 +30,36 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleConnectWallet = () => {
-    toast({
-      title: "Wallet Connection",
-      description: "This feature is not yet implemented.",
-    });
+  const handleConnectWallet = async () => {
+    try {
+      await connectWallet();
+    } catch (error: any) {
+      toast({
+        title: "ไม่สามารถเชื่อมต่อกระเป๋าได้",
+        description: error.message || "กรุณาลองใหม่อีกครั้ง",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleBuySNR = () => {
     toast({
-      title: "Buy SNR",
-      description: "This feature is not yet implemented.",
+      title: "ซื้อเหรียญ SNR",
+      description: "ฟีเจอร์นี้ยังไม่รองรับในขณะนี้",
     });
+  };
+  
+  const handleStartPlaying = () => {
+    if (!isConnected) {
+      toast({
+        title: "กรุณาเชื่อมต่อกระเป๋าก่อน",
+        description: "คุณต้องเชื่อมต่อกระเป๋าก่อนเริ่มเล่นเกม",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setLocation("/dashboard");
   };
 
   return (
@@ -71,21 +93,41 @@ export default function Navbar() {
           </nav>
 
           <div className="flex items-center gap-3">
-            <Button
-              variant="outline"
-              className="flex items-center gap-2"
-              onClick={handleConnectWallet}
-            >
-              <Wallet className="h-4 w-4" />
-              <span>Connect Wallet</span>
-            </Button>
-            <Button
-              className="bg-gradient-to-r from-primary to-purple-600 hover:opacity-90 transition-opacity flex items-center gap-2"
-              onClick={handleBuySNR}
-            >
-              <Coins className="h-4 w-4" />
-              <span>Buy SNR</span>
-            </Button>
+            {isConnected ? (
+              <>
+                <div className="bg-card px-3 py-1 rounded-lg flex items-center text-xs text-muted-foreground">
+                  <span className="font-mono">{shortenAddress(account || "")}</span>
+                </div>
+                <div className="bg-primary/20 text-primary px-3 py-1 rounded-lg flex items-center text-xs">
+                  <span className="font-mono">{snrBalance || "0"} SNR</span>
+                </div>
+                <Button
+                  className="bg-gradient-to-r from-primary to-purple-600 hover:opacity-90 transition-opacity flex items-center gap-2"
+                  onClick={handleStartPlaying}
+                >
+                  <Gamepad2 className="h-4 w-4" />
+                  <span>Start Playing</span>
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  className="flex items-center gap-2"
+                  onClick={handleConnectWallet}
+                >
+                  <Wallet className="h-4 w-4" />
+                  <span>Connect Wallet</span>
+                </Button>
+                <Button
+                  className="bg-gradient-to-r from-primary to-purple-600 hover:opacity-90 transition-opacity flex items-center gap-2"
+                  onClick={handleBuySNR}
+                >
+                  <Coins className="h-4 w-4" />
+                  <span>Buy SNR</span>
+                </Button>
+              </>
+            )}
           </div>
         </div>
 
@@ -109,21 +151,39 @@ export default function Navbar() {
               ))}
               
               <div className="flex flex-col gap-3 pt-4">
-                <Button
-                  variant="outline"
-                  className="flex items-center justify-center gap-2 w-full"
-                  onClick={handleConnectWallet}
-                >
-                  <Wallet className="h-4 w-4" />
-                  <span>Connect Wallet</span>
-                </Button>
-                <Button
-                  className="bg-gradient-to-r from-primary to-purple-600 hover:opacity-90 transition-opacity flex items-center justify-center gap-2 w-full"
-                  onClick={handleBuySNR}
-                >
-                  <Coins className="h-4 w-4" />
-                  <span>Buy SNR</span>
-                </Button>
+                {isConnected ? (
+                  <>
+                    <div className="bg-card p-3 rounded-lg flex flex-col items-center text-sm space-y-1">
+                      <span className="font-mono text-xs">{shortenAddress(account || "")}</span>
+                      <span className="font-mono text-primary">{snrBalance || "0"} SNR</span>
+                    </div>
+                    <Button
+                      className="bg-gradient-to-r from-primary to-purple-600 hover:opacity-90 transition-opacity flex items-center justify-center gap-2 w-full"
+                      onClick={handleStartPlaying}
+                    >
+                      <Gamepad2 className="h-4 w-4" />
+                      <span>Start Playing</span>
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      variant="outline"
+                      className="flex items-center justify-center gap-2 w-full"
+                      onClick={handleConnectWallet}
+                    >
+                      <Wallet className="h-4 w-4" />
+                      <span>Connect Wallet</span>
+                    </Button>
+                    <Button
+                      className="bg-gradient-to-r from-primary to-purple-600 hover:opacity-90 transition-opacity flex items-center justify-center gap-2 w-full"
+                      onClick={handleBuySNR}
+                    >
+                      <Coins className="h-4 w-4" />
+                      <span>Buy SNR</span>
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           </SheetContent>
