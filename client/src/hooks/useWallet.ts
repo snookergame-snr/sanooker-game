@@ -11,12 +11,15 @@ export interface UseWalletReturnType {
   signer: ethers.JsonRpcSigner | null;
   connectWallet: () => Promise<void>;
   disconnectWallet: () => void;
+  claimSnrTokens: () => Promise<void>;
 }
 
-const SNR_TOKEN_ADDRESS = '0x1234567890123456789012345678901234567890'; // ตัวอย่าง, เปลี่ยนเป็น address จริงของ token SNR
+const SNR_TOKEN_ADDRESS = '0xB7486846F0d1464eDE9dd4a1EF818E2c982aC7aD'; // Address ของเหรียญ SNR
 const SNR_TOKEN_ABI = [
   'function balanceOf(address owner) view returns (uint256)',
   'function decimals() view returns (uint8)',
+  'function transfer(address to, uint256 amount) returns (bool)',
+  'function mint(address to, uint256 amount) returns (bool)',
 ];
 
 export function useWallet(): UseWalletReturnType {
@@ -154,6 +157,50 @@ export function useWallet(): UseWalletReturnType {
       description: "ตัดการเชื่อมต่อกับกระเป๋าเรียบร้อยแล้ว",
     });
   };
+  
+  const claimSnrTokens = async () => {
+    if (!isConnected || !signer || !account) {
+      toast({
+        title: "กรุณาเชื่อมต่อกระเป๋าก่อน",
+        description: "คุณต้องเชื่อมต่อกระเป๋าก่อนรับเหรียญ SNR",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    try {
+      // สร้าง Contract instance พร้อม signer
+      const tokenContract = new ethers.Contract(
+        SNR_TOKEN_ADDRESS,
+        SNR_TOKEN_ABI,
+        signer
+      );
+      
+      // เรียกใช้ฟังก์ชั่น mint เพื่อรับเหรียญ 1000 SNR
+      const amount = ethers.parseUnits("1000", 18); // สมมติว่ามี decimal 18 หลัก
+      
+      // ถ้าเป็น contract จริง เราจะใช้ mint แต่ในกรณีนี้อาจจะทดลองใช้ transfer หรือ mock
+      const tx = await tokenContract.mint(account, amount);
+      await tx.wait();
+      
+      // อัพเดทยอดเหรียญ
+      if (provider) {
+        fetchBalances(provider, account);
+      }
+      
+      toast({
+        title: "รับเหรียญสำเร็จ",
+        description: "คุณได้รับเหรียญ SNR จำนวน 1,000 เหรียญ",
+      });
+    } catch (error: any) {
+      console.error("Error claiming SNR tokens:", error);
+      toast({
+        title: "ไม่สามารถรับเหรียญได้",
+        description: error.message || "เกิดข้อผิดพลาด กรุณาลองใหม่ภายหลัง",
+        variant: "destructive"
+      });
+    }
+  };
 
   return {
     isConnected,
@@ -164,6 +211,7 @@ export function useWallet(): UseWalletReturnType {
     signer,
     connectWallet,
     disconnectWallet,
+    claimSnrTokens,
   };
 }
 
